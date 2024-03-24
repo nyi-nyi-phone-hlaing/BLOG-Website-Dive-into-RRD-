@@ -7,7 +7,6 @@ dotenv.config();
 const KEY = process.env.JWT_KEY;
 
 function createJSONToken(email) {
-  console.log(KEY);
   return sign({ email }, KEY, { expiresIn: "1h" });
 }
 
