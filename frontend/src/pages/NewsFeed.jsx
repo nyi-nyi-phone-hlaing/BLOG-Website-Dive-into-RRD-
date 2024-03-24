@@ -15,7 +15,7 @@ export default NewsFeed;
 
 // * loader
 export const loader = async () => {
-  const response = await fetch("http://localhost:8080/posts");
+  const response = await fetch("http://localhost:7070/posts");
   if (!response.ok) {
     // * code...
   } else {

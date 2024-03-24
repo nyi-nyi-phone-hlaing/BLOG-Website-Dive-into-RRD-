@@ -1,17 +1,29 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useRouteError } from "react-router-dom";
 
 const Error = () => {
+  const error = useRouteError();
+  let routPath = "/";
+
+  switch (error.statusText) {
+    case "Back to SignUp":
+      routPath = "/auth?mode=signup";
+      break;
+
+    default:
+      routPath = "/";
+      break;
+  }
+
   return (
     <section className='error-page'>
-      <h1>404</h1>
-      <h3>Sorry, we couldn't found this page.</h3>
-      <p>
-        Lorem ipsum, dolor sit amet consectetur adipisicing elit. Velit,
-        laborum.
-      </p>
-      <Link to={"/"}>
-        <button>Back to Newsfeed</button>
+      <h1>{error.status}</h1>
+      <h3>{error.data.message}</h3>
+      <p>{error.data.messageText}</p>
+      <Link to={routPath}>
+        <button>
+          {error.statusText === "" ? "Back to Newsfeed" : error.statusText}
+        </button>
       </Link>
     </section>
   );

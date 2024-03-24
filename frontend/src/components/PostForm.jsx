@@ -1,10 +1,20 @@
-import { Link, Form, useActionData, redirect } from "react-router-dom";
+import {
+  Link,
+  Form,
+  useActionData,
+  redirect,
+  json,
+  useNavigation,
+} from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import { v4 as uuidv4 } from "uuid";
+import { getToken } from "../util/auth";
 
 const PostForm = (props) => {
   const data = useActionData();
   const oldPostData = props.oldPostData;
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === "submitting";
 
   const postType = props.formType.type_of_post;
   let formText = {};
@@ -83,7 +93,9 @@ const PostForm = (props) => {
               }></textarea>
           </div>
 
-          <button className='submit'>{formText.post_btn_text} Post</button>
+          <button className='submit'>
+            {isSubmitting ? "Pending..." : `${formText.post_btn_text} Post`}
+          </button>
         </Form>
       </div>
     </div>
@@ -94,6 +106,7 @@ export default PostForm;
 
 export const action = async ({ request, params }) => {
   const data = await request.formData();
+  const token = getToken();
   const postData = {
     id: uuidv4(),
     date: data.get("date"),
@@ -102,16 +115,17 @@ export const action = async ({ request, params }) => {
     description: data.get("description"),
   };
 
-  let url = "http://localhost:8080/posts";
+  let url = "http://localhost:7070/posts";
 
   if (request.method === "PATCH") {
-    url = `http://localhost:8080/posts/${params.id}`;
+    url = `http://localhost:7070/posts/${params.id}`;
   }
 
   const response = await fetch(url, {
     method: request.method,
     headers: {
       "Content-Type": "application/json",
+      Authorization: "Bearer " + token,
     },
     body: JSON.stringify(postData),
   });
@@ -121,7 +135,13 @@ export const action = async ({ request, params }) => {
   }
 
   if (!response.ok) {
-    //code
+    throw json(
+      {
+        message: "Page Not Found!",
+        messageText: "Something went wrong.",
+      },
+      { status: 404, statusText: "Back to Newsfeed" }
+    );
   }
   return redirect("/");
 };
